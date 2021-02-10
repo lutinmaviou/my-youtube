@@ -5,9 +5,16 @@ import ErrorMessage from 'components/ErrorMessage';
 import { client } from 'utils/api-client';
 import Wrapper from '../styles/Home';
 import VideoGrid from '../styles/VideoGrid';
+import VideoCard from 'components/VideoCard';
 
 function Home() {
-  const { data: videos, isLoading, isError, error } = useQuery('Home', () =>
+  const {
+    data: videos,
+    isSuccess,
+    isLoading,
+    isError,
+    error,
+  } = useQuery('Home', () =>
     client.get('/videos').then((res) => res.data.videos)
   );
 
@@ -17,7 +24,11 @@ function Home() {
   console.log(videos);
   return (
     <Wrapper>
-      <VideoGrid>Recommended videos</VideoGrid>
+      <VideoGrid>
+        {isSuccess
+          ? videos.map((video) => <VideoCard key={video.id} video={video} />)
+          : null}
+      </VideoGrid>
     </Wrapper>
   );
 }
