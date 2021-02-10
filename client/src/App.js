@@ -1,8 +1,8 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import MobileNavbar from 'components/MobileNavbar';
 import Navbar from 'components/Navbar';
 import Sidebar from 'components/Sidebar';
+import MobileNavbar from 'components/MobileNavbar';
 import Home from 'pages/Home';
 import Container from 'styles/Container';
 import WatchVideo from 'pages/WatchVideo';
