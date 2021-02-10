@@ -19,12 +19,9 @@ import { useLocationChange } from 'hooks/use-location-change';
 
 function App() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-
   const handleCloseSidebar = () => setSidebarOpen(false);
-
   const toggleSidebarOpen = () => setSidebarOpen(!isSidebarOpen);
-
-  useLocationChange(handleCloseSidebar)
+  useLocationChange(handleCloseSidebar);
 
   return (
     <>
