@@ -1,10 +1,11 @@
-import { Menu, MenuButton, MenuItem, MenuList } from "@reach/menu-button";
-import "@reach/menu-button/styles.css";
-import React from "react";
-import Avatar from "../styles/Avatar";
-import { ChannelIcon, SignoutIcon } from "./Icons";
+import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button';
+import '@reach/menu-button/styles.css';
+import React from 'react';
+import Avatar from '../styles/Avatar';
+import { ChannelIcon, SignoutIcon } from './Icons';
 
-function UserDropdown() {
+function UserDropdown(user) {
+  console.log(user);
   return (
     <Menu>
       <MenuButton>
