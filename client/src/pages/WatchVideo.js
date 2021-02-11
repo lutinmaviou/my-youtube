@@ -3,7 +3,12 @@ import VideoCard from 'components/VideoCard';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
-import { client, dislikeVideo, likeVideo } from 'utils/api-client';
+import {
+  client,
+  dislikeVideo,
+  likeVideo,
+  toggleSubscribeUser,
+} from 'utils/api-client';
 import { formatCreatedAt } from 'utils/date';
 import AddComment from '../components/AddComment';
 import { DislikeIcon, LikeIcon } from '../components/Icons';
@@ -46,6 +51,10 @@ function WatchVideo() {
     dislikeVideo(videoId);
   }
 
+  function handleToggleSubscribe(channelId) {
+    toggleSubscribeUser(channelId);
+  }
+
   return (
     <Wrapper
       filledLike={video && video.isLiked}
@@ -71,7 +80,8 @@ function WatchVideo() {
                 <span>{video.likesCount}</span>
               </p>
               <p className="flex-row dislike" style={{ marginLeft: '1rem' }}>
-                <DislikeIcon onClick={() => handleDislikeVideo(video.id)} /> <span>{video.dislikesCount}</span>
+                <DislikeIcon onClick={() => handleDislikeVideo(video.id)} />{' '}
+                <span>{video.dislikesCount}</span>
               </p>
             </div>
           </div>
@@ -94,11 +104,15 @@ function WatchVideo() {
             </div>
 
             {!video.isVideoMine && !video.isSubscribed && (
-              <Button>Subscribe</Button>
+              <Button onClick={() => handleToggleSubscribe(video.user.id)}>
+                Subscribe
+              </Button>
             )}
 
             {!video.isVideoMine && video.isSubscribed && (
-              <Button>Subscribed</Button>
+              <Button grey onClick={() => handleToggleSubscribe(video.user.id)}>
+                Subscribed
+              </Button>
             )}
           </div>
 
