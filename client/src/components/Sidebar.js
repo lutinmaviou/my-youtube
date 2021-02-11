@@ -12,8 +12,12 @@ import {
 } from './Icons';
 import { NavLink } from 'react-router-dom';
 import SidebarAuth from './SidebarAuth';
+import { useAuth } from 'context/auth-context';
+import Subscriptions from './Subscriptions';
 
 function Sidebar({ isSidebarOpen }) {
+  const user = useAuth();
+
   return (
     <Wrapper open={isSidebarOpen}>
       <NavLink exact to="/" activeClassName="active">
@@ -65,10 +69,11 @@ function Sidebar({ isSidebarOpen }) {
           <LikeIcon />
           <span>Liked videos</span>
         </div>
-        <div className="divider"></div>
       </NavLink>
 
-      <SidebarAuth />
+      <div className="divider"></div>
+
+      {user ? <Subscriptions user={user} /> : <SidebarAuth />}
     </Wrapper>
   );
 }
