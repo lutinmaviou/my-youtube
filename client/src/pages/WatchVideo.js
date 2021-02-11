@@ -1,4 +1,5 @@
 // @ts-nocheck
+import VideoCard from 'components/VideoCard';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
@@ -14,15 +15,21 @@ import Wrapper from '../styles/WatchVideo';
 
 function WatchVideo() {
   const { videoId } = useParams();
-  const { data: video, isLoading } = useQuery(['WatchVideo', videoId], () =>
-    client.get(`/videos/${videoId}`).then((res) => res.data.video)
+  const { data: video, isLoading: isLoadingVideo } = useQuery(
+    ['WatchVideo', videoId],
+    () => client.get(`/videos/${videoId}`).then((res) => res.data.video)
   );
 
-  if (isLoading) {
+  const { data: next, isLoading: isLoadingNext } = useQuery(
+    ['WatchVideo', 'Up Next'],
+    () => client.get('/videos').then((res) => res.data.videos)
+  );
+
+  if (isLoadingVideo || isLoadingNext) {
     return <Skeleton />;
   }
 
-  if (!isLoading && !video) {
+  if (!isLoadingVideo && !video) {
     return (
       <NoResults
         title="Page not found"
@@ -38,7 +45,7 @@ function WatchVideo() {
     >
       <div className="video-container">
         <div className="video">
-          {!isLoading && <VideoPlayer video={video} />}
+          {!isLoadingVideo && <VideoPlayer video={video} />}
         </div>
 
         <div className="video-info">
@@ -89,12 +96,17 @@ function WatchVideo() {
           <p>{video.description}</p>
         </div>
 
-        <AddComment video={video}/>
+        <AddComment video={video} />
       </div>
 
       <div className="related-videos">
         <h3 className="up-next">Up Next</h3>
-        Up Next Videos
+        {next
+          .filter((v) => v.id !== video.id)
+          .slice(0, 10)
+          .map((video) => (
+            <VideoCard key={video.id} hideAvatar video={video} />
+          ))}
       </div>
     </Wrapper>
   );
