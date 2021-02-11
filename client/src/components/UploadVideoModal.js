@@ -1,4 +1,8 @@
+import { useAuth } from 'context/auth-context';
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useSnackbar } from 'react-simple-snackbar';
+import { addVideo } from 'utils/api-client';
 import Button from '../styles/Button';
 import Wrapper from '../styles/UploadVideoModal';
 import { CloseIcon } from './Icons';
@@ -14,15 +18,39 @@ function UploadVideoModal({
   const [tab, setTab] = useState('PREVIEW');
   const [title, setTitle] = useState(defaultTitle);
   const [description, setDescription] = useState('');
+  const [openSnackbar] = useSnackbar('');
+  const history = useHistory();
+  const user = useAuth();
 
-  function handleTab() {};
+  async function handleTab() {
+    if (tab === 'PREVIEW') {
+      setTab('FORM');
+    } else {
+      if (!title.trim() || !description.trim()) {
+        return openSnackbar('Please fill in all the fields');
+      }
+
+      const video = {
+        title,
+        description,
+        thumbnail,
+        url,
+      };
+
+      await addVideo(video);
+      closeModal();
+      openSnackbar('Video published !');
+      history.push(`/channel/${user.id}`);
+    }
+  }
+
   return (
     <Wrapper>
       <div className="modal-content">
         <div className="modal-header">
           <div className="modal-header-left">
             <CloseIcon onClick={closeModal} />
-            <h3>{url ? 'Video Uploaded!' : 'Uploading...'}</h3>
+            <h3>{url ? 'Video Uploaded !' : 'Uploading...'}</h3>
           </div>
           <div style={{ display: url ? 'block' : 'none' }}>
             <Button onClick={handleTab}>
@@ -44,10 +72,12 @@ function UploadVideoModal({
               type="text"
               placeholder="Enter your video title"
               value={title}
+              onChange={(event) => setTitle(event.target.value)}
             />
             <textarea
               placeholder="Tell viewers about your video"
               value={description}
+              onChange={(event) => setDescription(event.target.value)}
             />
           </div>
         )}
