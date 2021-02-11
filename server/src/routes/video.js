@@ -98,6 +98,8 @@ async function searchVideos(req, res, next) {
             contains: req.query.query,
             mode: 'insensitive',
           },
+        },
+        {
           description: {
             contains: req.query.query,
             mode: 'insensitive',
