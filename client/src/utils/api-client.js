@@ -32,7 +32,7 @@ export async function addVideoView(videoId) {
   await queryCache.invalidateQueries('History');
 }
 
-export async function addComment(video, comment) {
+export async function addComment({video, comment}) {
   await client.post(`/videos/${video.id}/comments`, { text: comment });
   await queryCache.invalidateQueries(['WatchVideo', video.id]);
 }
