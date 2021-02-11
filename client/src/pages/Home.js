@@ -21,12 +21,11 @@ function Home() {
   if (isLoading) return <HomeSkeleton />;
   if (isError) return <ErrorMessage error={error} />;
 
-  console.log(videos);
   return (
     <Wrapper>
       <VideoGrid>
         {isSuccess
-          ? videos.map((video) => <VideoCard key={video.id} video={video} />)
+          ? videos.map((video) => <VideoCard key={video.id} video={video} hideAvatar/>)
           : null}
       </VideoGrid>
     </Wrapper>
