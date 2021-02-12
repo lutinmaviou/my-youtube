@@ -1,11 +1,17 @@
 // @ts-nocheck
+import ChannelTabAbout from 'components/ChannelTabAbout';
+import ChannelTabChannels from 'components/ChannelTabChannels';
+import ChannelTabVideo from 'components/ChannelTabVideo';
+import EditProfile from 'components/EditProfile';
 import ErrorMessage from 'components/ErrorMessage';
 import { useAuth } from 'context/auth-context';
+import useAuthAction from 'hooks/use-auth-action';
 import React from 'react';
 import { useQuery } from 'react-query';
 import { useParams } from 'react-router-dom';
 import Skeleton from 'skeletons/ChannelSkeleton';
-import { client } from 'utils/api-client';
+import Button from 'styles/Button';
+import { client, toggleSubscribeUser } from 'utils/api-client';
 import { VidIcon } from '../components/Icons';
 import SignUpCard from '../components/SignUpCard';
 import Wrapper from '../styles/Channel';
@@ -17,6 +23,7 @@ const activeTabStyle = {
 
 function Channel() {
   const user = useAuth();
+  const handleAuthAction = useAuthAction();
   const [tab, setTab] = React.useState('VIDEOS');
   const { channelId } = useParams();
 
@@ -44,12 +51,14 @@ function Channel() {
   if (isLoading) return <Skeleton />;
   if (isError) return <ErrorMessage error={error} />;
 
-  console.log({ channel });
+  function handleToggleSubscribe() {
+    handleAuthAction(toggleSubscribeUser, channel.id);
+  }
 
   return (
-    <Wrapper editProfile={false}>
+    <Wrapper editProfile={channel.isMe}>
       <div className="cover">
-        <img src="https://dummyimage.com/600x200" alt="channel-cover" />
+        <img src={channel.cover} alt={`${channel.username} cover`} />
       </div>
 
       <div className="header-tabs">
@@ -57,14 +66,26 @@ function Channel() {
           <div className="flex-row">
             <img
               className="avatar lg"
-              src="https://dummyimage.com/100x100"
-              alt="channel avatar"
+              src={channel.avatar}
+              alt={`${channel.username} avatar`}
             />
             <div>
-              <h3>username</h3>
-              <span className="secondary">subscribersCount subscribers</span>
+              <h3>{channel.username}</h3>
+              <span className="secondary">{`${channel.subscribersCount} subscribers`}</span>
             </div>
           </div>
+
+          {channel.isMe && <EditProfile profile={channel} />}
+
+          {!channel.isMe && !channel.isSubscribed && (
+            <Button onClick={handleToggleSubscribe}>Subscribe</Button>
+          )}
+
+          {!channel.isMe && channel.isSubscribed && (
+            <Button grey onClick={handleToggleSubscribe}>
+              Subscribed
+            </Button>
+          )}
         </div>
 
         <div className="tabs">
@@ -91,7 +112,11 @@ function Channel() {
         </div>
       </div>
 
-      <div className="tab"></div>
+      <div className="tab">
+        {tab === 'VIDEOS' && <ChannelTabVideo videos={channel.videos} />}
+        {tab === 'CHANNELS' && <ChannelTabChannels channels={channel.channels} />}
+        {tab === 'ABOUT' && <ChannelTabAbout about={channel.about} />}
+      </div>
     </Wrapper>
   );
 }
