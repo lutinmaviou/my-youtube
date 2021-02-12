@@ -1,13 +1,31 @@
 // @ts-nocheck
-import React from "react";
-import { HistoryIcon } from "../components/Icons";
-import SignUpCard from "../components/SignUpCard";
-import Wrapper from "../styles/Trending";
+import ErrorMessage from 'components/ErrorMessage';
+import TrendingCard from 'components/TrendingCard';
+import { useAuth } from 'context/auth-context';
+import React from 'react';
+import { useQuery } from 'react-query';
+import { Link } from 'react-router-dom';
+import Skeleton from 'skeletons/TrendingSkeleton';
+import { client } from 'utils/api-client';
+import { HistoryIcon } from '../components/Icons';
+import SignUpCard from '../components/SignUpCard';
+import Wrapper from '../styles/Trending';
 
 function History() {
-  const isAuth = false;
+  const user = useAuth();
+  const {
+    data: videos,
+    isLoading,
+    isError,
+    error,
+    isSuccess,
+  } = useQuery(
+    'History',
+    () => client.get('/users/history').then((res) => res.data.videos),
+    { enabled: user }
+  );
 
-  if (!isAuth) {
+  if (!user) {
     return (
       <SignUpCard
         icon={<HistoryIcon />}
@@ -17,10 +35,26 @@ function History() {
     );
   }
 
+  if (isLoading) return <Skeleton />;
+  if (isError) return <ErrorMessage error={error} />;
+
   return (
     <Wrapper noPad>
       <h2>History</h2>
-      Watched Videos
+
+      {isSuccess && !videos.length && (
+        <p className="secondary">
+          Videos that you have watched will show up here
+        </p>
+      )}
+
+      {isSuccess
+        ? videos.map((video) => (
+            <Link key={video.id} to={`/watch/${video.id}`}>
+              <TrendingCard video={video} />
+            </Link>
+          ))
+        : null}
     </Wrapper>
   );
 }
