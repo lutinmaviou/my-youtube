@@ -1,17 +1,72 @@
-import React from "react";
-import Button from "../styles/Button";
-import Wrapper from "../styles/EditProfileModal";
-import { CloseIcon } from "./Icons";
+import React, { useState } from 'react';
+import { useSnackbar } from 'react-simple-snackbar';
+import { updateUser } from 'utils/api-client';
+import { uploadMedia } from 'utils/upload-media';
+import Button from '../styles/Button';
+import Wrapper from '../styles/EditProfileModal';
+import { CloseIcon } from './Icons';
 
-function EditProfileModal() {
+function EditProfileModal({ profile, closeModal }) {
+  const [cover, setCover] = useState(profile.cover);
+  const [avatar, setAvatar] = useState(profile.avatar);
+  const [openSnackbar] = useSnackbar();
+
+  async function handleCoverUpload(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      const cover = await uploadMedia({
+        type: 'image',
+        file,
+        preset: 'rh5ryfi6',
+      });
+      setCover(cover);
+    }
+  }
+
+  async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      const avatar = await uploadMedia({
+        type: 'image',
+        file,
+        preset: 'b8inykvr',
+      });
+      setAvatar(avatar);
+    }
+  }
+
+  async function handleEditProfile(event) {
+    event.preventDefault();
+    const username = event.target.elements.username.value;
+    const about = event.target.elements.about.value;
+
+    if (!username.trim()) {
+      return openSnackbar(`Ùsername can't be empty`);
+    }
+
+    //user's payload object
+    const user = {
+      username,
+      about,
+      cover,
+      avatar,
+    };
+
+    await updateUser(user);
+    openSnackbar('Profile updated with success');
+    closeModal();
+  }
+
   return (
     <Wrapper>
       <div className="container"></div>
       <div className="edit-profile">
-        <form>
+        <form onSubmit={handleEditProfile}>
           <div className="modal-header">
             <h3>
-              <CloseIcon />
+              <CloseIcon onClick={closeModal} />
               <span>Edit Profile</span>
             </h3>
             <Button type="submit">Save</Button>
@@ -23,7 +78,7 @@ function EditProfileModal() {
                 className="pointer"
                 width="100%"
                 height="200px"
-                src="https://dummyimage.com/600x200"
+                src={cover}
                 alt="cover"
               />
             </label>
@@ -31,32 +86,35 @@ function EditProfileModal() {
               id="cover-upload"
               type="file"
               accept="image/*"
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
+              onChange={handleCoverUpload}
             />
           </div>
 
           <div className="avatar-upload-icon">
             <label htmlFor="avatar-upload">
-              <img
-                src="https://dummyimage.com/250x250"
-                className="pointer avatar lg"
-                alt="avatar"
-              />
+              <img src={avatar} className="pointer avatar lg" alt="avatar" />
             </label>
             <input
               id="avatar-upload"
               type="file"
               accept="image/*"
-              style={{ display: "none" }}
+              style={{ display: 'none' }}
+              onChange={handleAvatarUpload}
             />
           </div>
           <input
             type="text"
             placeholder="Insert username"
             id="username"
+            defaultValue={profile.username}
             required
           />
-          <textarea id="about" placeholder="Tell viewers about your channel" />
+          <textarea
+            id="about"
+            placeholder="Tell viewers about your channel"
+            defaultValue={profile.about}
+          />
         </form>
       </div>
     </Wrapper>

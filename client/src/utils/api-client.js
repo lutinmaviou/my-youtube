@@ -25,14 +25,17 @@ export async function signoutUser() {
   window.location.pathname = '/';
 }
 
-export async function updateUser() {}
+export async function updateUser(user) {
+  await client.put('/users', user);
+  await queryCache.invalidateQueries('Channel');
+}
 
 export async function addVideoView(videoId) {
   await client.get(`/videos/${videoId}/view`);
   await queryCache.invalidateQueries('History');
 }
 
-export async function addComment({video, comment}) {
+export async function addComment({ video, comment }) {
   await client.post(`/videos/${video.id}/comments`, { text: comment });
   await queryCache.invalidateQueries(['WatchVideo', video.id]);
 }
