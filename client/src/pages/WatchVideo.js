@@ -2,7 +2,7 @@
 import React from 'react';
 import VideoCard from 'components/VideoCard';
 import { useQuery } from 'react-query';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   client,
   dislikeVideo,
@@ -99,7 +99,11 @@ function WatchVideo() {
                 alt={`${video.user.username} channel avatar`}
               />
               <div className="channel-info-meta">
-                <h4>{video.user.username}</h4>
+                <h4>
+                  <Link to={`/channel/${video.user.id}`}>
+                    {video.user.username}
+                  </Link>
+                </h4>
                 <span className="secondary small">
                   {video.subscribersCount} subscribers
                 </span>
