@@ -1,14 +1,28 @@
 // @ts-nocheck
-import React from "react";
-import { SubIcon } from "../components/Icons";
-import SignUpCard from "../components/SignUpCard";
-import Wrapper from "../styles/Home";
-import VideoGrid from "../styles/VideoGrid";
+import ChannelSuggestions from 'components/ChannelSuggestions';
+import ErrorMessage from 'components/ErrorMessage';
+import VideoCard from 'components/VideoCard';
+import { useAuth } from 'context/auth-context';
+import React from 'react';
+import { useQuery } from 'react-query';
+import Skeleton from 'skeletons/HomeSkeleton';
+import { client } from 'utils/api-client';
+import { SubIcon } from '../components/Icons';
+import SignUpCard from '../components/SignUpCard';
+import Wrapper from '../styles/Home';
+import VideoGrid from '../styles/VideoGrid';
 
 function Subscriptions() {
-  const isAuth = false;
+  const user = useAuth();
+  const { data: feed, isLoading, isSuccess, isError, error } = useQuery(
+    'Subscriptions',
+    () => client.get('/users/subscriptions').then((res) => res.data.feed),
+    {
+      enabled: user,
+    }
+  );
 
-  if (!isAuth) {
+  if (!user) {
     return (
       <SignUpCard
         icon={<SubIcon />}
@@ -18,11 +32,21 @@ function Subscriptions() {
     );
   }
 
+  if (isLoading) return <Skeleton />;
+  if (isError) return <ErrorMessage error={error} />;
+  if (!isLoading && !feed.length) return <ChannelSuggestions />;
+
   return (
     <Wrapper>
-      <div style={{ marginTop: "1.5rem" }}></div>
+      <div style={{ marginTop: '1.5rem' }}></div>
 
-      <VideoGrid>Subscription Videos</VideoGrid>
+      <VideoGrid>
+        {isSuccess
+          ? feed.map((video) => (
+              <VideoCard key={video.id} video={video} hideAvatar />
+            ))
+          : null}
+      </VideoGrid>
     </Wrapper>
   );
 }
