@@ -7,6 +7,8 @@ import { darkTheme } from '../styles/theme';
 import { ReactQueryConfigProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query-devtools';
 import SnackbarProvider from 'react-simple-snackbar';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorFallback from './ErrorFallback';
 
 const config = {
   queries: {
@@ -21,6 +23,7 @@ const config = {
 
 function AppProviders({ children }) {
   return (
+    <ErrorBoundary FallbackComponent={ErrorFallback} >
     <ReactQueryConfigProvider config={config}>
       <Router>
         <AuthProvider>
@@ -34,6 +37,7 @@ function AppProviders({ children }) {
         </AuthProvider>
       </Router>
     </ReactQueryConfigProvider>
+    </ErrorBoundary>
   );
 }
 
